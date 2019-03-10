@@ -8,10 +8,10 @@ const settings = {
 const sketch = () => {
   let parameters = {
     // Values for the attractor function
-    a : -0.7,
-    b : 0.7,
-    c : -0.5,
-    d : 0.5
+    a : 2,
+    b : -1.4,
+    c : -1.6,
+    d : 0.2
   }
 
   const getValue = (x, y, props)=>{
@@ -21,7 +21,7 @@ const sketch = () => {
     
     // scale down x and y
     let {width, height} = props;
-    
+
     let scale = 0.005;
     x = (x - width / 2) * scale;
     y = (y - height / 2)  * scale;
@@ -39,8 +39,8 @@ const sketch = () => {
     const {context, width, height} = props;
     const res = 35;
     
-    context.strokeStyle = 'black';
-    context.fillStyle = 'black';
+    context.strokeStyle = '#151515';
+    context.fillStyle = '#151515';
     context.lineWidth = 1;
     // context.clearRect(0, 0, width, height);
     for(var x = 0; x < width; x += res) {
@@ -68,7 +68,7 @@ const sketch = () => {
   return (props) => {
     const { context, width, height } = props;
     // console.log(props);
-    context.fillStyle = 'lightgrey';
+    context.fillStyle = '#c7bf9d';
     context.fillRect(0, 0, width, height);
     drawTheFlow(props);
   };
