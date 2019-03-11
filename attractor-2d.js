@@ -10,12 +10,13 @@ const sketch = () => {
     // Values for the attractor function
     a : 2,
     b : -1.4,
-    c : -1.6,
-    d : 0.2
+    c : -1.7,
+    d : 0.5
   }
   let counter = {
-    startRadius:500,
-    numOfParticles:100
+    startRadius:1000,
+    numOfParticles:1000,
+    numOfFrames:200
   }
   let points = [];
   
@@ -28,21 +29,68 @@ const sketch = () => {
     },
     angle = 0,
     slice = Math.PI * 2 / counter.numOfParticles;
-  
+    
     for(var i = 0; i < counter.numOfParticles; i++) {
-        angle = i*slice;
-        
-        points.push({
-            x: center.x + Math.cos(angle) * radius,
-            y: center.y + Math.sin(angle) * radius, 
-            vx: 0,
-            vy: 0
-        })
+      angle = i*slice;
+      
+      points.push({
+        x: center.x + Math.cos(angle) * radius,
+        y: center.y + Math.sin(angle) * radius, 
+        vx: 0,
+        vy: 0
+      })
     };
-    console.log(points);
+    // console.log(points);
   }
+  
+  const drawPoints = (props)=>{
+    // console.log(points)
+    let {context, width, height} = props;
+    context.strokeStyle = '#151515';
+    context.globalAlpha = 0.1;
+    context.lineWidth = 3;
+    context.fillStyle = '#151515';
 
+    for(let i = 0; i < points.length; i++) {
+      // get each point and do what we did before with a single point
+      let p = points[i];
+      let value = getValue(p.x, p.y, props);
+      p.vx += Math.cos(value) * 0.3;
+      p.vy += Math.sin(value) * 0.3;
+      
+      // move to current position
+      context.beginPath();
+      context.moveTo(p.x, p.y);
+      
+      // add velocity to position and line to new position
+      p.x += p.vx;
+      p.y += p.vy;
+      context.lineTo(p.x, p.y);
+      context.stroke();
 
+      // context.beginPath();
+      // context.arc(p.x, p.y, 5, 0, Math.PI * 2, false);
+      // context.fill();
+
+      
+      // apply some friction so point doesn't speed up too much
+      p.vx *= 0.99;
+      p.vy *= 0.99;
+      
+      // wrap around edges of screen
+      if(p.x > width) p.x = 0;
+      if(p.y > height) p.y = 0;
+      if(p.x < 0) p.x = width;
+      if(p.y < 0) p.y = height;
+    }
+    
+    // call this function again in one frame tick
+    /*       counter.tic++;
+    if(counter.tic<counter.maxFrames){
+      requestAnimationFrame(render);
+    }
+    */  
+  }
   const getValue = (x, y, props)=>{
     // console.log('gv', settings)
     // clifford attractor
@@ -50,7 +98,7 @@ const sketch = () => {
     
     // scale down x and y
     let {width, height} = props;
-
+    
     let scale = 0.005;
     x = (x - width / 2) * scale;
     y = (y - height / 2)  * scale;
@@ -63,7 +111,7 @@ const sketch = () => {
     return Math.atan2(y1 - y, x1 - x);
     
   }
-
+  
   const drawTheFlow = (props)=>{
     const {context, width, height} = props;
     const res = 35;
@@ -73,31 +121,34 @@ const sketch = () => {
     context.lineWidth = 1;
     // context.clearRect(0, 0, width, height);
     for(var x = 0; x < width; x += res) {
-        for(var y = 0; y < height; y += res) {
-            var value = getValue(x, y, props);
-            context.save();
-            context.translate(x, y);
-
-            context.beginPath();
-            context.arc(0, 0, 1.5, 0, Math.PI * 2, false);
-            context.fill();
-    
-            context.rotate(value);
-            context.beginPath();
-            context.moveTo(0, 0);
-            context.lineTo(res * 0.75, 0);
-            context.stroke();
-            context.restore();
-        }
+      for(var y = 0; y < height; y += res) {
+        var value = getValue(x, y, props);
+        context.save();
+        context.translate(x, y);
+        
+        context.beginPath();
+        context.arc(0, 0, 1.5, 0, Math.PI * 2, false);
+        context.fill();
+        
+        context.rotate(value);
+        context.beginPath();
+        context.moveTo(0, 0);
+        context.lineTo(res * 0.75, 0);
+        context.stroke();
+        context.restore();
+      }
     }
   }
-
+  
   return (props) => {
     const { context, width, height } = props;
     context.fillStyle = '#c7bf9d';
     context.fillRect(0, 0, width, height);
     setupPoints(props);
-    drawTheFlow(props);
+    // drawTheFlow(props);
+    for(let i = 0 ; i < counter.numOfFrames ; i++){
+      drawPoints(props);
+    }
   };
 };
 
