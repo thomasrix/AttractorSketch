@@ -13,6 +13,35 @@ const sketch = () => {
     c : -1.6,
     d : 0.2
   }
+  let counter = {
+    startRadius:500,
+    numOfParticles:100
+  }
+  let points = [];
+  
+  let setupPoints = (props)=>{
+    let {width, height} = props;
+    let radius = counter.startRadius,
+    center = {
+      x:height * 0.5,
+      y:width * 0.5
+    },
+    angle = 0,
+    slice = Math.PI * 2 / counter.numOfParticles;
+  
+    for(var i = 0; i < counter.numOfParticles; i++) {
+        angle = i*slice;
+        
+        points.push({
+            x: center.x + Math.cos(angle) * radius,
+            y: center.y + Math.sin(angle) * radius, 
+            vx: 0,
+            vy: 0
+        })
+    };
+    console.log(points);
+  }
+
 
   const getValue = (x, y, props)=>{
     // console.log('gv', settings)
@@ -58,8 +87,6 @@ const sketch = () => {
             context.moveTo(0, 0);
             context.lineTo(res * 0.75, 0);
             context.stroke();
-            //context.circle(2, 2);
-            //context.fill();
             context.restore();
         }
     }
@@ -67,9 +94,9 @@ const sketch = () => {
 
   return (props) => {
     const { context, width, height } = props;
-    // console.log(props);
     context.fillStyle = '#c7bf9d';
     context.fillRect(0, 0, width, height);
+    setupPoints(props);
     drawTheFlow(props);
   };
 };
