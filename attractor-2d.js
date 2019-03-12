@@ -2,7 +2,12 @@ const canvasSketch = require('canvas-sketch');
 
 const settings = {
   dimensions: [ 2048, 2048 ],
-  scaleToView: true
+  scaleToView: true,
+  animate:false,
+  loop:true,
+  fps:30,
+  playbackRate:'fixed',
+  duration:4,
 };
 
 const sketch = () => {
@@ -15,13 +20,14 @@ const sketch = () => {
   }
   let counter = {
     startRadius:1000,
-    numOfParticles:1000,
+    numOfParticles:1500,
     numOfFrames:200
   }
-  let points = [];
+  let points;
   
-  let setupPoints = (props)=>{
-    let {width, height} = props;
+  let setupPoints = ()=>{
+    points = [];
+    let {width, height} = {width:settings.dimensions[0], height:settings.dimensions[1]};
     let radius = counter.startRadius,
     center = {
       x:height * 0.5,
@@ -93,17 +99,17 @@ const sketch = () => {
   }
   const getValue = (x, y, props)=>{
     // console.log('gv', settings)
-    // clifford attractor
+    // Using the Clifford Attractor
     // http://paulbourke.net/fractals/clifford/
     
-    // scale down x and y
     let {width, height} = props;
     
+    // Scale down x and y
     let scale = 0.005;
     x = (x - width / 2) * scale;
     y = (y - height / 2)  * scale;
     
-    // attactor gives new x, y for old one. 
+    // Attactor offsets x and y
     let x1 = Math.sin(parameters.a * y) + parameters.c * Math.cos(parameters.a * x);
     let y1 = Math.sin(parameters.b * x) + parameters.d * Math.cos(parameters.b * y);
     
@@ -140,12 +146,14 @@ const sketch = () => {
     }
   }
   
+  
   return (props) => {
-    const { context, width, height } = props;
+    const { context, width, height, playhead } = props;
+    console.log('render', playhead)
     context.fillStyle = '#c7bf9d';
     context.fillRect(0, 0, width, height);
-    setupPoints(props);
     // drawTheFlow(props);
+    setupPoints();
     for(let i = 0 ; i < counter.numOfFrames ; i++){
       drawPoints(props);
     }
