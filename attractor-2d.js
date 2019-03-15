@@ -1,20 +1,23 @@
 const canvasSketch = require('canvas-sketch');
+const {lerp} = require('canvas-sketch-util/math');
 
 const settings = {
   dimensions: [ 2048, 2048 ],
   scaleToView: true,
-  animate:false,
-  loop:true,
-  fps:30,
-  playbackRate:'fixed',
-  duration:4,
+  // animate:false,
+  // loop:true,
+  // fps:30,
+  // playbackRate:'fixed',
+  // duration:4,
 };
 
 const sketch = () => {
+  let bgColor = '#2b3a42';
+  let lineColor = '#f0f0df';
   let parameters = {
     // Values for the attractor function
-    a : 2,
-    b : -1.4,
+    a : 3,
+    b : -2.4,
     c : -1.7,
     d : 0.5
   }
@@ -49,13 +52,16 @@ const sketch = () => {
     // console.log(points);
   }
   
-  const drawPoints = (props)=>{
+  const drawPoints = (props, frame)=>{
     // console.log(points)
     let {context, width, height} = props;
-    context.strokeStyle = '#151515';
+    let norm = frame/counter.numOfFrames;
+    console.log('norm', norm);
+    context.strokeStyle = lineColor;
     context.globalAlpha = 0.1;
     context.lineWidth = 3;
-    context.fillStyle = '#151515';
+    context.globalAlpha = lerp(0, 0.1, frame/counter.numOfFrames);
+    // context.fillStyle = '#151515';
 
     for(let i = 0; i < points.length; i++) {
       // get each point and do what we did before with a single point
@@ -150,12 +156,12 @@ const sketch = () => {
   return (props) => {
     const { context, width, height, playhead } = props;
     console.log('render', playhead)
-    context.fillStyle = '#c7bf9d';
+    context.fillStyle = bgColor;
     context.fillRect(0, 0, width, height);
     // drawTheFlow(props);
     setupPoints();
     for(let i = 0 ; i < counter.numOfFrames ; i++){
-      drawPoints(props);
+      drawPoints(props, i);
     }
   };
 };
