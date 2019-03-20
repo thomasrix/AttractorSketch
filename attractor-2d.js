@@ -3,39 +3,46 @@ const {lerp} = require('canvas-sketch-util/math');
 const random = require('canvas-sketch-util/random');
 
 const settings = {
-  dimensions: [ 2048, 2048 ],
+  dimensions: 'A5',
+  pixelsPerInch:300,
   scaleToView: true,
 };
 
 const sketch = () => {
-  let bgColor = '#1e3440';
-  let lineColor = '#f0f0df';
+  let bgColor = '#f0f0d7';
+  let lineColor = '#1e3440';
   let parameters = {
     // Values for the attractor function
-    a : 1.9,
-    b : -0.9,
-    c : -1.7,
-    d : -0.4
+    a : -1.5,
+    b : 0.9,
+    c : -1,
+    d : -1.4
   }
-  let counter = {
-    startRadius:1020,
-    numOfParticles:1500,
-    numOfFrames:300,
-    fadeIn:120,
-    fadeOut:80
+  let counter, points;
+
+  let setupCounter = (props)=>{
+    let {width} = props;
+    counter = {
+      startRadius:width * 0.49,
+      numOfParticles:1000,
+      numOfFrames:300,
+      fadeIn:50,
+      fadeOut:80
+    }
   }
-  let points;
   
-  let setupPoints = ()=>{
+  let setupPoints = (props)=>{
     points = [];
-    let {width, height} = {width:settings.dimensions[0], height:settings.dimensions[1]};
+    console.log(props)
+    let {width, height} = props;
     let radius = counter.startRadius,
     center = {
-      x:height * 0.5,
-      y:width * 0.5
+      x:width * 0.5,
+      y:height * 0.65
     },
     angle = 0,
     slice = Math.PI * 2 / counter.numOfParticles;
+    console.log(center);
     
     for(var i = 0; i < counter.numOfParticles; i++) {
       angle = i*slice;
@@ -150,11 +157,12 @@ const sketch = () => {
   
   return (props) => {
     const { context, width, height, playhead } = props;
-    console.log('render', playhead)
+    // console.log('render', playhead)
     context.fillStyle = bgColor;
-    context.fillRect(0, 0, width, height);
+    // context.fillRect(0, 0, width, height);
     // drawTheFlow(props);
-    setupPoints();
+    setupCounter(props);
+    setupPoints(props);
     for(let i = 0 ; i < counter.numOfFrames ; i++){
       drawPoints(props, i);
     }
