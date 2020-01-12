@@ -3,62 +3,60 @@ const {lerp} = require('canvas-sketch-util/math');
 const random = require('canvas-sketch-util/random');
 
 const settings = {
-  dimensions: 'A5',
-  pixelsPerInch:300,
+  dimensions: [1750, 1750],
+  // pixelsPerInch:300,
   scaleToView: true,
 };
 
 const sketch = () => {
-  let bgColor = '#f0f0d7';
-  let lineColor = '#1e3440';
+  let bgColor = '#bdb8b0';
+  // let lineColor = '#1b1916';
+  let lineColor = '#080505';
   let parameters = {
     // Values for the attractor function
-    a : -1.5,
-    b : 0.9,
-    c : -1.05,
-    d : -1.4
+    a : 0.66,
+    b : -0.66,
+    c : 0.4,
+    d : 2
   }
   let counter, points;
-
+  
   let setupCounter = (props)=>{
     let {width} = props;
     counter = {
-      startRadius:width * 0.49,
-      numOfParticles:1000,
-      numOfFrames:300,
-      fadeIn:50,
+      // gridSize:24,
+      // startRadius:width * 0.49,
+      numOfParticles:100,
+      numOfFrames:750,
+      fadeIn:40,
       fadeOut:80
     }
   }
   
   let setupPoints = (props)=>{
     points = [];
-    console.log(props)
     let {width, height} = props;
-    let radius = counter.startRadius,
-    center = {
-      x:width * 0.5,
-      y:height * 0.65
-    },
-    angle = 0,
-    slice = Math.PI * 2 / counter.numOfParticles;
-    console.log(center);
-    
-    for(var i = 0; i < counter.numOfParticles; i++) {
-      angle = i*slice;
-      
+    let margin = width * 0.02;
+    // let y = margin;
+    // console.log(y)
+    for (let x = 0 ; x < counter.numOfParticles; x++){
+      const u = x / (counter.numOfParticles - 1);
+      // const v = y;
       points.push({
-        x: center.x + Math.cos(angle) * random.range(radius * 0.996, radius),
-        y: center.y + Math.sin(angle) * random.range(radius * 0.996, radius), 
-        vx: 0,
-        vy: 0
+        x:lerp(margin, width - margin, u),
+        y:margin,
+        vx:0,
+        vy:0
       })
-    };
-    // console.log(points);
+    }
+    // for (let y = 0 ; y < counter.gridSize ; y++){
+    // }
+    
+    console.log(points);
   }
   const envelope = (frame)=>{
     let fadeOut = counter.numOfFrames - counter.fadeOut;
-    let maxAlpha = alpha = 0.05;
+    let maxAlpha = alpha = 0.03;
     if(frame < counter.fadeIn){
       alpha = lerp(0, maxAlpha, frame/counter.fadeIn);
     }
@@ -74,17 +72,20 @@ const sketch = () => {
     let norm = frame/counter.numOfFrames;
     // console.log('norm', norm);
     context.strokeStyle = lineColor;
-    context.globalAlpha = 0.1;
-    context.lineWidth = 3;
-    context.globalAlpha = envelope(frame);
+    // context.globalAlpha = 0.1;
+    let env = envelope(frame);
+    // context.lineWidth = env * 300;
+    context.lineWidth = 5;
+    context.globalAlpha = env;
+    // context.globalAlpha = 0.02;
     // context.fillStyle = '#151515';
-
+    
     for(let i = 0; i < points.length; i++) {
       // get each point and accellerate according to the attractor function
       let p = points[i];
       let value = getValue(p.x, p.y, props);
-      p.vx += Math.cos(value) * 0.3;
-      p.vy += Math.sin(value) * 0.3;
+      p.vx += Math.cos(value) * 0.23;
+      p.vy += Math.sin(value) * 0.19;
       
       context.beginPath();
       // move to current position
@@ -95,16 +96,11 @@ const sketch = () => {
       p.y += p.vy;
       context.lineTo(p.x, p.y);
       context.stroke();
-
-      // slow down the accelleration
-      p.vx *= 0.99;
-      p.vy *= 0.99;
       
-      // wrap the overflow
-      if(p.x > width) p.x = 0;
-      if(p.y > height) p.y = 0;
-      if(p.x < 0) p.x = width;
-      if(p.y < 0) p.y = height;
+      // slow down the accelleration
+      p.vx *= 0.995;
+      p.vy *= 0.995;
+      
     }
     
   }
@@ -134,6 +130,7 @@ const sketch = () => {
     context.strokeStyle = lineColor;
     context.fillStyle = lineColor;
     context.lineWidth = 2;
+    context.globalAlpha = 0.2;
     // context.clearRect(0, 0, width, height);
     for(var x = 0; x < width; x += res) {
       for(var y = 0; y < height; y += res) {
@@ -159,7 +156,7 @@ const sketch = () => {
     const { context, width, height, playhead } = props;
     // console.log('render', playhead)
     context.fillStyle = bgColor;
-    // context.fillRect(0, 0, width, height);
+    context.fillRect(0, 0, width, height);
     // drawTheFlow(props);
     setupCounter(props);
     setupPoints(props);

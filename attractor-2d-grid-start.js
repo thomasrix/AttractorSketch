@@ -3,8 +3,8 @@ const {lerp} = require('canvas-sketch-util/math');
 const random = require('canvas-sketch-util/random');
 
 const settings = {
-  dimensions: 'A5',
-  pixelsPerInch:300,
+  dimensions: [1000, 1000],
+  // pixelsPerInch:300,
   scaleToView: true,
 };
 
@@ -14,47 +14,43 @@ const sketch = () => {
   let parameters = {
     // Values for the attractor function
     a : -1.5,
-    b : 0.9,
-    c : -1.05,
-    d : -1.4
+    b : -1.6,
+    c : 1.4,
+    d : 0.8
   }
   let counter, points;
-
+  
   let setupCounter = (props)=>{
     let {width} = props;
     counter = {
-      startRadius:width * 0.49,
-      numOfParticles:1000,
-      numOfFrames:300,
-      fadeIn:50,
-      fadeOut:80
+      gridSize:24,
+      // startRadius:width * 0.49,
+      // numOfParticles:300,
+      numOfFrames:200,
+      fadeIn:80,
+      fadeOut:120
     }
   }
   
   let setupPoints = (props)=>{
     points = [];
-    console.log(props)
+    // console.log(props)
     let {width, height} = props;
-    let radius = counter.startRadius,
-    center = {
-      x:width * 0.5,
-      y:height * 0.65
-    },
-    angle = 0,
-    slice = Math.PI * 2 / counter.numOfParticles;
-    console.log(center);
+    let margin = width * 0.22;
+    for (let y = 0 ; y < counter.gridSize ; y++){
+      for (let x = 0 ; x < counter.gridSize; x++){
+        const u = x / (counter.gridSize - 1);
+        const v = y / (counter.gridSize - 1);
+        points.push({
+          x:lerp(margin, width - margin, u),
+          y:lerp(margin, height - margin, v),
+          vx:0,
+          vy:0
+        })
+      }
+    }
     
-    for(var i = 0; i < counter.numOfParticles; i++) {
-      angle = i*slice;
-      
-      points.push({
-        x: center.x + Math.cos(angle) * random.range(radius * 0.996, radius),
-        y: center.y + Math.sin(angle) * random.range(radius * 0.996, radius), 
-        vx: 0,
-        vy: 0
-      })
-    };
-    // console.log(points);
+    console.log(points.length);
   }
   const envelope = (frame)=>{
     let fadeOut = counter.numOfFrames - counter.fadeOut;
@@ -74,11 +70,12 @@ const sketch = () => {
     let norm = frame/counter.numOfFrames;
     // console.log('norm', norm);
     context.strokeStyle = lineColor;
-    context.globalAlpha = 0.1;
-    context.lineWidth = 3;
-    context.globalAlpha = envelope(frame);
+    // context.globalAlpha = 0.1;
+    let env = envelope(frame);
+    context.lineWidth = env * 600;
+    context.globalAlpha = env;
     // context.fillStyle = '#151515';
-
+    
     for(let i = 0; i < points.length; i++) {
       // get each point and accellerate according to the attractor function
       let p = points[i];
@@ -95,17 +92,17 @@ const sketch = () => {
       p.y += p.vy;
       context.lineTo(p.x, p.y);
       context.stroke();
-
+      
       // slow down the accelleration
-      p.vx *= 0.99;
-      p.vy *= 0.99;
+      p.vx *= 0.995;
+      p.vy *= 0.995;
       
       // wrap the overflow
-      if(p.x > width) p.x = 0;
+/*       if(p.x > width) p.x = 0;
       if(p.y > height) p.y = 0;
       if(p.x < 0) p.x = width;
       if(p.y < 0) p.y = height;
-    }
+ */    }
     
   }
   const getValue = (x, y, props)=>{
@@ -134,6 +131,7 @@ const sketch = () => {
     context.strokeStyle = lineColor;
     context.fillStyle = lineColor;
     context.lineWidth = 2;
+    context.globalAlpha = 0.2;
     // context.clearRect(0, 0, width, height);
     for(var x = 0; x < width; x += res) {
       for(var y = 0; y < height; y += res) {
@@ -159,8 +157,8 @@ const sketch = () => {
     const { context, width, height, playhead } = props;
     // console.log('render', playhead)
     context.fillStyle = bgColor;
-    // context.fillRect(0, 0, width, height);
-    // drawTheFlow(props);
+    context.fillRect(0, 0, width, height);
+    drawTheFlow(props);
     setupCounter(props);
     setupPoints(props);
     for(let i = 0 ; i < counter.numOfFrames ; i++){
