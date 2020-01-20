@@ -3,32 +3,32 @@ const {lerp} = require('canvas-sketch-util/math');
 const random = require('canvas-sketch-util/random');
 
 const settings = {
-  dimensions: [3000, 3000],
+  dimensions: [1000, 1000],
   // pixelsPerInch:300,
   scaleToView: true,
 };
 
 const sketch = () => {
-  let bgColor = '#8aa2af';
-  let lineColor = '#161e21';
+  let bgColor = '#f0f0d7';
+  let lineColor = '#1e3440';
   let parameters = {
     // Values for the attractor function
-    a : 0.66,
-    b : -0.66,
-    c : 0.4,
-    d : 1.2
+    a : -1.5,
+    b : -1.6,
+    c : 1.4,
+    d : 0.8
   }
   let counter, points;
   
   let setupCounter = (props)=>{
     let {width} = props;
     counter = {
-      gridSize:40,
+      gridSize:24,
       // startRadius:width * 0.49,
       // numOfParticles:300,
-      numOfFrames:550,
-      fadeIn:40,
-      fadeOut:40
+      numOfFrames:200,
+      fadeIn:80,
+      fadeOut:120
     }
   }
   
@@ -36,14 +36,14 @@ const sketch = () => {
     points = [];
     // console.log(props)
     let {width, height} = props;
-    let margin = width * 0.1;
-    for (let y = 0 ; y < (counter.gridSize/2) ; y++){
+    let margin = width * 0.22;
+    for (let y = 0 ; y < counter.gridSize ; y++){
       for (let x = 0 ; x < counter.gridSize; x++){
         const u = x / (counter.gridSize - 1);
         const v = y / (counter.gridSize - 1);
         points.push({
           x:lerp(margin, width - margin, u),
-          y:lerp((margin ), (height/8) - margin, v),
+          y:lerp(margin, height - margin, v),
           vx:0,
           vy:0
         })
@@ -72,8 +72,7 @@ const sketch = () => {
     context.strokeStyle = lineColor;
     // context.globalAlpha = 0.1;
     let env = envelope(frame);
-    // context.lineWidth = env * 100;
-    context.lineWidth = 3;
+    context.lineWidth = env * 600;
     context.globalAlpha = env;
     // context.fillStyle = '#151515';
     
@@ -127,7 +126,7 @@ const sketch = () => {
   
   const drawTheFlow = (props)=>{
     const {context, width, height} = props;
-    const res = 20;
+    const res = 35;
     
     context.strokeStyle = lineColor;
     context.fillStyle = lineColor;
@@ -159,7 +158,7 @@ const sketch = () => {
     // console.log('render', playhead)
     context.fillStyle = bgColor;
     context.fillRect(0, 0, width, height);
-    // drawTheFlow(props);
+    drawTheFlow(props);
     setupCounter(props);
     setupPoints(props);
     for(let i = 0 ; i < counter.numOfFrames ; i++){
